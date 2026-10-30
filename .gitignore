@@ -5,6 +5,11 @@
 [Bb]uilds/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+.vs/
+.idea/
 
 *.csproj
 *.sln
