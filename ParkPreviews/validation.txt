@@ -1,0 +1,10 @@
+20-second Unity Editor play-mode check
+Runtime errors: 0
+Particle systems at start/end: 19/19
+Playing systems: 19
+Live water particles: 209
+Missing/error materials: 0
+Fountain audio playing: True
+Colliders: 233
+This verifies editor playback, not standalone PC performance or audible sound quality.
+Loop path capsule checks blocked: 0/48 (0.6m-wide test capsule).
