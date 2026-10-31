@@ -1,0 +1,1 @@
+Ground-level camera saved; textured surfaces, close activity areas, shelter, planting layers and daylight installed. Pre-upgrade scene saved as Park_BeforeGroundView.unity.
