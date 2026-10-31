@@ -34,11 +34,10 @@ Players learn to identify different types of waste and sort them into the correc
 
 | Contributor Index | Contributor Name |
 |---|---|
-| Contributor 01 | [Enter Name] |
-| Contributor 02 | [Enter Name] |
-| Contributor 03 | [Enter Name] |
-| Contributor 04 | [Enter Name] |
-| Contributor 05 | [Enter Name] |
+| FC231026 | N.D.T Wijewardana |
+| FC231034 | H.B.Semi K.D.Bogahawatte |
+| FC231004 | H.H.S.R.Weerasingha |
+| FC231047 | M.D.V. Chamodya |
 
 ## 🚀 Project Status
 
