@@ -1,0 +1,1 @@
+public enum WasteCategory {    Plastic,    Paper,    Organic }
