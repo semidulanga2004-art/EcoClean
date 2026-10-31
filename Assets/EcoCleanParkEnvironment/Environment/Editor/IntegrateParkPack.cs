@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 [InitializeOnLoad] public static class IntegrateParkPack {
- const string Pack="Assets/Palmov Island/Low Poly Environment Park";
+ const string Pack="Assets/EcoCleanParkEnvironment/ThirdParty/Palmov Island/Low Poly Environment Park";
  static IntegrateParkPack(){EditorApplication.delayCall+=TryRun;}
  static void CleanImportedInstances(){
   if(EditorApplication.isPlayingOrWillChangePlaymode||EditorApplication.isCompiling)return;
@@ -27,10 +27,10 @@ using System.Collections.Generic;
   var root=GameObject.Find("EcoClean Park Environment");if(!root)return;
   if(Enumerable.Range(0,root.transform.childCount).Any(i=>root.transform.GetChild(i).name.StartsWith("Palmov "))){Debug.Log("Park pack is already integrated.");return;}
   var scene=root.scene;
-  EditorSceneManager.SaveScene(scene,"Assets/EcoCleanPark/Scenes/Park_CustomBackup.unity",true);
+  EditorSceneManager.SaveScene(scene,"Assets/EcoCleanParkEnvironment/Environment/Scenes/Park_CustomBackup.unity",true);
   var sourceMat=AssetDatabase.LoadAssetAtPath<Material>(Pack+"/Materials/mat main.mat");
   if(!sourceMat)throw new System.Exception("Pack material not imported.");
-  string mp="Assets/EcoCleanPark/Materials/Palmov Park URP.mat";
+  string mp="Assets/EcoCleanParkEnvironment/Environment/Materials/Palmov Park URP.mat";
   var material=AssetDatabase.LoadAssetAtPath<Material>(mp);
   if(!material){material=new Material(Shader.Find("Universal Render Pipeline/Lit"));AssetDatabase.CreateAsset(material,mp);}
   material.SetTexture("_BaseMap",sourceMat.GetTexture("_MainTex"));material.color=Color.white;material.SetFloat("_Smoothness",.05f);material.enableInstancing=true;
@@ -66,7 +66,7 @@ using System.Collections.Generic;
    var b=BoundsOf(g);g.transform.localScale*=.3f/Mathf.Max(.01f,b.size.y);b=BoundsOf(g);g.transform.position+=Vector3.up*(-b.min.y);
    foreach(var r in g.GetComponentsInChildren<Renderer>())r.sharedMaterials=r.sharedMaterials.Select(_=>material).ToArray();g.isStatic=true;count++;
   }
-  AssetDatabase.SaveAssets();EditorSceneManager.SaveScene(scene,"Assets/EcoCleanPark/Scenes/Park.unity");
+  AssetDatabase.SaveAssets();EditorSceneManager.SaveScene(scene,"Assets/EcoCleanParkEnvironment/Environment/Scenes/Park.unity");
   File.WriteAllText("ParkPreviews/pack-integration.txt",count+" park-pack scenery instances integrated. Source pack material retained; compatible URP material created separately. Custom-only scene backed up as Park_CustomBackup.unity.");
   var cam=Camera.main;ParkBuilder.Capture(cam,"park-pack-overview",new Vector3(0,35,-45),new Vector3(0,0,1));ParkBuilder.Capture(cam,"park-pack-entrance",new Vector3(0,2.5f,-21),new Vector3(0,1,1));cam.transform.position=new Vector3(0,35,-45);cam.transform.LookAt(new Vector3(0,0,1));EditorSceneManager.SaveScene(scene);
  }

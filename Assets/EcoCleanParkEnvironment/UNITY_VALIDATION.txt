@@ -1,0 +1,4 @@
+PENDING - waiting for Unity editor refresh.
+Static reference checks passed; see STRUCTURE_CHECK.json.
+Open Unity and allow scripts to compile. The automatic check will replace this file with PASS or FAILED.
+If needed, run EcoClean > Rebuild And Validate Environment Prefabs.

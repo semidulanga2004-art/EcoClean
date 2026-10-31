@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 [InitializeOnLoad] public static class ParkGroundViewUpgrade
 {
- const string A="Assets/EcoCleanPark";
+ const string A="Assets/EcoCleanParkEnvironment/Environment";
  static Transform detail;
  static System.Random rand;
  static ParkGroundViewUpgrade(){EditorApplication.delayCall+=TryRun;EditorApplication.delayCall+=FinishRequested;}

@@ -9,7 +9,7 @@ using System.Linq;
  static ParkValidation(){EditorApplication.update+=Tick;Application.logMessageReceived+=Log;}
  static void Log(string c,string s,LogType t){if(EditorApplication.isPlaying && (t==LogType.Error||t==LogType.Exception))errors++;}
  static void Tick(){
-  if(EditorApplication.isCompiling||EditorApplication.isUpdating||File.Exists("Assets/EcoCleanPark/BUILD_REQUEST"))return;
+  if(EditorApplication.isCompiling||EditorApplication.isUpdating||File.Exists("Assets/EcoCleanParkEnvironment/Environment/BUILD_REQUEST"))return;
   if(!EditorApplication.isPlaying){
    if(!File.Exists("ParkPreviews/VALIDATE_REQUEST"))return;
    float duration; if(!float.TryParse(File.ReadAllText("ParkPreviews/VALIDATE_REQUEST"),out duration))duration=120;

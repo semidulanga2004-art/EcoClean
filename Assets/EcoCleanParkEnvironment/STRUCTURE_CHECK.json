@@ -1,0 +1,11 @@
+{
+  "status": "PASS - static serialized-reference checks",
+  "serialized_objects": 2223,
+  "local_references_resolve": true,
+  "duplicate_asset_guids": 0,
+  "referenced_assets_checked": 73,
+  "missing_asset_references": 0,
+  "asset_dependencies_outside_folder": 0,
+  "camera_listener_sun_excluded": true,
+  "unity_editor_import": "Pending. Native Unity check runs on next refresh; see UNITY_VALIDATION.txt."
+}

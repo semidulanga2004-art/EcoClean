@@ -10,7 +10,7 @@ using EcoClean.Environment;
 [InitializeOnLoad]
 public static class ParkBuilder
 {
-    const string Root = "Assets/EcoCleanPark";
+    const string Root = "Assets/EcoCleanParkEnvironment/Environment";
     static Transform environment;
     static Dictionary<string, Material> mats = new Dictionary<string, Material>();
     static System.Random rng;
@@ -124,7 +124,7 @@ public static class ParkBuilder
         }
         for(int i=0;i<15;i++){var g=Prop(new[]{"LitterBottle","LitterCup","LitterPaper"}[i%3],new Vector3(R(-19,-10),.07f,R(9,17)),R(0,360),1.3f,false);g.name="Litter placement "+(i+1);}
         var fountain=Prop("Fountain",Vector3.zero);fountain.isStatic=false;AddWater(fountain);
-        PrefabUtility.SaveAsPrefabAsset(fountain,Root+"/Prefabs/WorkingFountain.prefab");
+        PrefabUtility.SaveAsPrefabAsset(fountain,"Assets/EcoCleanParkEnvironment/Prefabs/WorkingFountain.prefab");
         var marker=Empty("PlayerSpawn - integration marker only");marker.transform.position=new Vector3(0,.1f,-21);
         for(int i=0;i<4;i++){
             float x=i==2?-25.4f:25.4f;var b=Box("Invisible boundary",new Vector3(i<2?0:x,2,i<2?(i==0?-25.4f:25.4f):0),i<2?new Vector3(52,4,.5f):new Vector3(.5f,4,52),grass);b.GetComponent<Renderer>().enabled=false;
