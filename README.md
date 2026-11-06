@@ -52,3 +52,7 @@ Further work will focus on completing the environment, integrating all scenes an
 ---
 
 *EcoClean – Learn to Sort, Play to Protect!* 🌍
+
+## Environment integration
+
+The park handoff is in [Assets/EcoCleanParkEnvironment](Assets/EcoCleanParkEnvironment/README.md). Import the whole folder with its `.meta` files, then drag `EcoCleanPark.prefab` into the gameplay scene. The editable Blender sources remain in `SourceArt/Park`.
