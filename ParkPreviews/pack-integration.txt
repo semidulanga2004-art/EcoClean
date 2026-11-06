@@ -1,1 +1,0 @@
-127 park-pack scenery instances integrated. Source pack material retained; compatible URP material created separately. Custom-only scene backed up as Park_CustomBackup.unity.

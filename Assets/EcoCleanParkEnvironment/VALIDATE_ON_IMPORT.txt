@@ -1,1 +1,0 @@
-Generate native Unity prefabs and validate the complete environment on the next editor import.
