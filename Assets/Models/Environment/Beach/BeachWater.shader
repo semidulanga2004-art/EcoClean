@@ -37,9 +37,13 @@ Shader "EcoClean/Beach Water"
             {
                 float2 p = input.positionWS.xz;
                 float t = _Time.y;
-                float swell = sin(p.x * 1.65 + sin(p.y * .24 + t * .38) * .63 + t * 1.7);
-                float ripple = sin(p.x * 2.7 - p.y * 1.12 + t * 2.1);
-                float crossRipple = sin(p.x * .84 + p.y * 2.04 - t * 1.25);
+                float swellPhase = p.x * 1.65 + sin(p.y * .24 + t * .38) * .63 + t * 1.7;
+                float ripplePhase = p.x * 2.7 - p.y * 1.12 + t * 2.1;
+                float crossPhase = p.x * .84 + p.y * 2.04 - t * 1.25;
+                // Fade ripples before their phase changes too quickly across a pixel.
+                float swell = sin(swellPhase) * (1 - smoothstep(.65, 2.4, fwidth(swellPhase)));
+                float ripple = sin(ripplePhase) * (1 - smoothstep(.65, 2.4, fwidth(ripplePhase)));
+                float crossRipple = sin(crossPhase) * (1 - smoothstep(.65, 2.4, fwidth(crossPhase)));
                 float crest = smoothstep(.56, 1.0, swell * .68 + ripple * .20 + crossRipple * .12);
                 float3 view = SafeNormalize(GetCameraPositionWS() - input.positionWS);
                 float grazing = pow(1 - saturate(view.y), 4);
