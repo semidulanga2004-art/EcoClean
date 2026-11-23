@@ -50912,6 +50912,7 @@ GameObject:
   - component: {fileID: 3469287836639750771}
   - component: {fileID: 1711813856066412217}
   - component: {fileID: 1053590080}
+  - component: {fileID: 321874651001}
   m_Layer: 0
   m_Name: BinMetal
   m_TagString: Untagged
@@ -66147,6 +66148,7 @@ GameObject:
   - component: {fileID: 3469287838325081992}
   - component: {fileID: 1711813854262195010}
   - component: {fileID: 1380020169}
+  - component: {fileID: 321874651002}
   m_Layer: 0
   m_Name: BinPaper
   m_TagString: Untagged
@@ -76279,6 +76281,7 @@ GameObject:
   - component: {fileID: 3469287838104222408}
   - component: {fileID: 1711813855184162306}
   - component: {fileID: 1702531721}
+  - component: {fileID: 321874651003}
   m_Layer: 0
   m_Name: BinPlastic
   m_TagString: Untagged
@@ -106490,6 +106493,45 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.597845, y: 4.583662, z: 2.3893774}
   m_Center: {x: 0, y: 2.291831, z: 0.00000059604645}
+--- !u!114 &321874651001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1053590079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 106d3fdac309abe4ba50d26a05aaea55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortingBin
+  acceptsCategory: 2
+--- !u!114 &321874651002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1380020168}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 106d3fdac309abe4ba50d26a05aaea55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortingBin
+  acceptsCategory: 1
+--- !u!114 &321874651003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1702531720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 106d3fdac309abe4ba50d26a05aaea55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortingBin
+  acceptsCategory: 0
 --- !u!1 &1168203140171924332
 GameObject:
   m_ObjectHideFlags: 0
