@@ -542,6 +542,7 @@ GameObject:
   - component: {fileID: 587328657}
   - component: {fileID: 587328659}
   - component: {fileID: 587328658}
+  - component: {fileID: 587328660}
   m_Layer: 5
   m_Name: BriefingText
   m_TagString: Untagged
@@ -669,6 +670,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 587328656}
   m_CullTransparentMesh: 1
+--- !u!114 &587328660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587328656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f45d5d883773bc4e9e58f7714f2440b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TypewriterText
+  charactersPerSecond: 40
+  startDelay: 0.8
 --- !u!1 &1085886628
 GameObject:
   m_ObjectHideFlags: 0
