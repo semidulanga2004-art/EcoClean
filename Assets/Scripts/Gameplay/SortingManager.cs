@@ -17,6 +17,7 @@ public class SortingManager : MonoBehaviour
 
     private readonly HashSet<int> cleanedWasteIds = new HashSet<int>();
     private WasteItem selectedWaste;
+    private AudioManager gameplayAudio;
     private int score;
     private int totalWaste;
     private int cleanedWaste;
@@ -38,6 +39,13 @@ public class SortingManager : MonoBehaviour
         UpdateScore();
         UpdateProgress();
 
+        gameplayAudio = AudioManager.Instance;
+        if (gameplayAudio != null)
+        {
+            gameplayAudio.PlayMusic();
+            gameplayAudio.PlayAmbience();
+        }
+
         if (feedbackText != null)
         {
             feedbackText.text = "Select waste, then select a bin.";
@@ -48,6 +56,12 @@ public class SortingManager : MonoBehaviour
     {
         if (Instance == this)
         {
+            if (gameplayAudio != null)
+            {
+                gameplayAudio.StopAmbience();
+                gameplayAudio.StopMusic();
+            }
+
             Instance = null;
         }
     }
@@ -86,6 +100,11 @@ public class SortingManager : MonoBehaviour
         if (selectedWaste.category == bin.acceptsCategory)
         {
             score += 10;
+            if (gameplayAudio != null)
+            {
+                gameplayAudio.PlayCorrectSort();
+            }
+
             if (cleanedWasteIds.Add(selectedWaste.GetInstanceID()))
             {
                 cleanedWaste++;
@@ -100,6 +119,11 @@ public class SortingManager : MonoBehaviour
         else
         {
             score -= 5;
+            if (gameplayAudio != null)
+            {
+                gameplayAudio.PlayIncorrectSort();
+            }
+
             if (feedbackText != null)
             {
                 feedbackText.text = "Wrong bin! -5 points";

@@ -12,6 +12,9 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
     private float ambienceVolume = 0.22f;
     private float sfxVolume = 0.75f;
     private string status = "Ready.";
+    private Vector2 scrollPosition;
+    private bool showAudioDiagnostics;
+    private readonly float[] outputSamples = new float[256];
 
     private void Start()
     {
@@ -30,7 +33,9 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
 
     private void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(16, 16, 480, 560), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(16, 16, Mathf.Min(600, Screen.width - 32),
+            Mathf.Min(640, Screen.height - 32)), GUI.skin.box);
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition);
         GUILayout.Label("AudioManager Play Mode test");
 
         GUI.enabled = manager != null;
@@ -99,7 +104,51 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
 
         GUI.enabled = true;
         GUILayout.Label(status);
+        showAudioDiagnostics = GUILayout.Toggle(showAudioDiagnostics, "Show audio diagnostics");
+        if (showAudioDiagnostics)
+        {
+            DrawAudioDiagnostics();
+        }
+
+        GUILayout.EndScrollView();
         GUILayout.EndArea();
+    }
+
+    private void DrawAudioDiagnostics()
+    {
+#if UNITY_EDITOR
+        GUILayout.Label(UnityEditor.EditorUtility.audioMasterMute
+            ? "Unity Game view Mute Audio is ON. Use the toolbar speaker to unmute."
+            : "Unity Game view Mute Audio is OFF.");
+#endif
+        int activeListeners = 0;
+        foreach (AudioListener listener in FindObjectsByType<AudioListener>(FindObjectsSortMode.None))
+        {
+            if (listener.isActiveAndEnabled)
+            {
+                activeListeners++;
+            }
+        }
+
+        GUILayout.Label($"Active listeners: {activeListeners} | Listener volume: {AudioListener.volume:F2} | Paused: {AudioListener.pause}");
+        AudioListener.GetOutputData(outputSamples, 0);
+        float outputPeak = 0f;
+        foreach (float sample in outputSamples)
+        {
+            outputPeak = Mathf.Max(outputPeak, Mathf.Abs(sample));
+        }
+        GUILayout.Label($"Unity output peak (left channel): {outputPeak:F4}");
+
+        if (manager == null)
+        {
+            return;
+        }
+
+        foreach (AudioSource source in manager.GetComponents<AudioSource>())
+        {
+            string clip = source.clip == null ? "(none / one-shot)" : source.clip.name;
+            GUILayout.Label($"{clip} | Playing: {source.isPlaying} | Volume: {source.volume:F2} | Muted: {source.mute}");
+        }
     }
 
     private static void DrawVolumeSlider(string label, ref float volume, System.Action<float> apply)
