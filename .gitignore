@@ -22,3 +22,11 @@
 
 .DS_Store
 Thumbs.db
+
+# Pixabay clips kept locally for Unity testing
+/Assets/Audio/Music/background-music.mp3
+/Assets/Audio/Music/background-music.mp3.meta
+/Assets/Audio/Ambience/park-ambience.mp3
+/Assets/Audio/Ambience/park-ambience.mp3.meta
+/Assets/Audio/SFX/victory.mp3
+/Assets/Audio/SFX/victory.mp3.meta
