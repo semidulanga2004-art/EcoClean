@@ -49,3 +49,7 @@ MonoBehaviour:
   uiClick: {fileID: 8300000, guid: eef3bb73264d2264ba38b8c7f4059076, type: 3}
   correctSort: {fileID: 8300000, guid: 5161c9bf34456d54c8d8ee8f58fe92db, type: 3}
   incorrectSort: {fileID: 8300000, guid: 3897528600e0ef7439033a0a5631eaa5, type: 3}
+  victory: {fileID: 0}
+  musicVolume: 0.45
+  ambienceVolume: 0.22
+  sfxVolume: 0.75

@@ -10,6 +10,7 @@ public sealed class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip uiClick;
     [SerializeField] private AudioClip correctSort;
     [SerializeField] private AudioClip incorrectSort;
+    [SerializeField] private AudioClip victory;
     [SerializeField, Range(0f, 1f)] private float sfxVolume = 0.75f;
     [SerializeField, Range(0f, 1f)] private float musicVolume = 0.45f;
     [SerializeField, Range(0f, 1f)] private float ambienceVolume = 0.22f;
@@ -17,6 +18,9 @@ public sealed class AudioManager : MonoBehaviour
     private AudioSource musicSource;
     private AudioSource ambienceSource;
     private AudioSource effectsSource;
+    private AudioSource victorySource;
+
+    public bool HasVictoryClip => victory != null;
 
     private void Awake()
     {
@@ -32,6 +36,7 @@ public sealed class AudioManager : MonoBehaviour
         musicSource = CreateSource(true, musicVolume);
         ambienceSource = CreateSource(true, ambienceVolume);
         effectsSource = CreateSource(false, sfxVolume);
+        victorySource = CreateSource(false, sfxVolume);
     }
 
     private void OnDestroy()
@@ -87,13 +92,28 @@ public sealed class AudioManager : MonoBehaviour
         }
     }
 
-    public void SetSfxVolume(float volume) => SetVolume(effectsSource, ref sfxVolume, volume);
+    public void SetSfxVolume(float volume)
+    {
+        SetVolume(effectsSource, ref sfxVolume, volume);
+        if (victorySource != null)
+        {
+            victorySource.volume = sfxVolume;
+        }
+    }
 
     public void PlayUIClick() => PlaySoundEffect(uiClick);
 
     public void PlayCorrectSort() => PlaySoundEffect(correctSort);
 
     public void PlayIncorrectSort() => PlaySoundEffect(incorrectSort);
+
+    public void PlayVictory()
+    {
+        if (victory != null && victorySource != null && !victorySource.isPlaying)
+        {
+            victorySource.PlayOneShot(victory);
+        }
+    }
 
     public void PlaySoundEffect(AudioClip clip)
     {

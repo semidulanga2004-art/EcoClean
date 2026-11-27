@@ -30,7 +30,7 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
 
     private void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(16, 16, 480, 510), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(16, 16, 480, 560), GUI.skin.box);
         GUILayout.Label("AudioManager Play Mode test");
 
         GUI.enabled = manager != null;
@@ -80,6 +80,14 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
         {
             manager.PlayIncorrectSort();
             status = "Incorrect sort requested.";
+        }
+
+        if (GUILayout.Button("Play victory"))
+        {
+            manager.PlayVictory();
+            status = manager.HasVictoryClip
+                ? "Victory requested."
+                : "Victory clip is unassigned. Silence is expected.";
         }
 
         GUI.enabled = manager != null && !sceneTestStarted;
