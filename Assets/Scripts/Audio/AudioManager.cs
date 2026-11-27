@@ -7,6 +7,10 @@ public sealed class AudioManager : MonoBehaviour
 
     [SerializeField] private AudioClip backgroundMusic;
     [SerializeField] private AudioClip parkAmbience;
+    [SerializeField] private AudioClip uiClick;
+    [SerializeField] private AudioClip correctSort;
+    [SerializeField] private AudioClip incorrectSort;
+    [SerializeField, Range(0f, 1f)] private float sfxVolume = 0.75f;
     [SerializeField, Range(0f, 1f)] private float musicVolume = 0.45f;
     [SerializeField, Range(0f, 1f)] private float ambienceVolume = 0.22f;
 
@@ -27,7 +31,7 @@ public sealed class AudioManager : MonoBehaviour
 
         musicSource = CreateSource(true, musicVolume);
         ambienceSource = CreateSource(true, ambienceVolume);
-        effectsSource = CreateSource(false, 1f);
+        effectsSource = CreateSource(false, sfxVolume);
     }
 
     private void OnDestroy()
@@ -82,6 +86,14 @@ public sealed class AudioManager : MonoBehaviour
             source.volume = configuredVolume;
         }
     }
+
+    public void SetSfxVolume(float volume) => SetVolume(effectsSource, ref sfxVolume, volume);
+
+    public void PlayUIClick() => PlaySoundEffect(uiClick);
+
+    public void PlayCorrectSort() => PlaySoundEffect(correctSort);
+
+    public void PlayIncorrectSort() => PlaySoundEffect(incorrectSort);
 
     public void PlaySoundEffect(AudioClip clip)
     {

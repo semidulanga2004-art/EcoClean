@@ -45,8 +45,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   managerPrefab: {fileID: 11400001, guid: d148a9fbcfcf466d9ea155a5204c0445, type: 3}
-  backgroundMusic: {fileID: 8300000, guid: f40188b86eb540409590e6a99a4aa4f7, type: 3}
-  uiClick: {fileID: 8300000, guid: eef3bb73264d2264ba38b8c7f4059076, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

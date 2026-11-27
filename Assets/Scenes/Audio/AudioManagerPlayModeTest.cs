@@ -5,13 +5,12 @@ using UnityEngine.SceneManagement;
 public sealed class AudioManagerPlayModeTest : MonoBehaviour
 {
     [SerializeField] private AudioManager managerPrefab;
-    [SerializeField] private AudioClip backgroundMusic;
-    [SerializeField] private AudioClip uiClick;
 
     private AudioManager manager;
     private bool sceneTestStarted;
     private float musicVolume = 0.45f;
     private float ambienceVolume = 0.22f;
+    private float sfxVolume = 0.75f;
     private string status = "Ready.";
 
     private void Start()
@@ -31,10 +30,10 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
 
     private void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(16, 16, 480, 440), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(16, 16, 480, 510), GUI.skin.box);
         GUILayout.Label("AudioManager Play Mode test");
 
-        GUI.enabled = manager != null && backgroundMusic != null;
+        GUI.enabled = manager != null;
         if (GUILayout.Button("Start music"))
         {
             manager.PlayMusic();
@@ -63,11 +62,24 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
         DrawVolumeSlider("Music volume", ref musicVolume, manager == null ? null : manager.SetMusicVolume);
         DrawVolumeSlider("Ambience volume", ref ambienceVolume, manager == null ? null : manager.SetAmbienceVolume);
 
-        GUI.enabled = manager != null && uiClick != null;
+        DrawVolumeSlider("SFX volume", ref sfxVolume, manager == null ? null : manager.SetSfxVolume);
+
         if (GUILayout.Button("Play UI click"))
         {
-            manager.PlaySoundEffect(uiClick);
+            manager.PlayUIClick();
             status = "UI click requested.";
+        }
+
+        if (GUILayout.Button("Play correct sort"))
+        {
+            manager.PlayCorrectSort();
+            status = "Correct sort requested.";
+        }
+
+        if (GUILayout.Button("Play incorrect sort"))
+        {
+            manager.PlayIncorrectSort();
+            status = "Incorrect sort requested.";
         }
 
         GUI.enabled = manager != null && !sceneTestStarted;
@@ -78,11 +90,6 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
         }
 
         GUI.enabled = true;
-        if (backgroundMusic == null || uiClick == null)
-        {
-            GUILayout.Label("A test clip is missing. Its playback button is disabled.");
-        }
-
         GUILayout.Label(status);
         GUILayout.EndArea();
     }
