@@ -5,7 +5,13 @@ public sealed class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
 
+    [SerializeField] private AudioClip backgroundMusic;
+    [SerializeField] private AudioClip parkAmbience;
+    [SerializeField, Range(0f, 1f)] private float musicVolume = 0.45f;
+    [SerializeField, Range(0f, 1f)] private float ambienceVolume = 0.22f;
+
     private AudioSource musicSource;
+    private AudioSource ambienceSource;
     private AudioSource effectsSource;
 
     private void Awake()
@@ -19,12 +25,9 @@ public sealed class AudioManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        musicSource = gameObject.AddComponent<AudioSource>();
-        musicSource.playOnAwake = false;
-        musicSource.loop = true;
-
-        effectsSource = gameObject.AddComponent<AudioSource>();
-        effectsSource.playOnAwake = false;
+        musicSource = CreateSource(true, musicVolume);
+        ambienceSource = CreateSource(true, ambienceVolume);
+        effectsSource = CreateSource(false, 1f);
     }
 
     private void OnDestroy()
@@ -35,27 +38,48 @@ public sealed class AudioManager : MonoBehaviour
         }
     }
 
-    public void PlayMusic(AudioClip clip)
+    public void PlayMusic() => PlayMusic(backgroundMusic);
+
+    public void PlayMusic(AudioClip clip) => PlayLoop(musicSource, clip);
+
+    public void StopMusic() => musicSource?.Stop();
+
+    public void PlayAmbience() => PlayAmbience(parkAmbience);
+
+    public void PlayAmbience(AudioClip clip) => PlayLoop(ambienceSource, clip);
+
+    public void StopAmbience() => ambienceSource?.Stop();
+
+    public void SetMusicVolume(float volume) => SetVolume(musicSource, ref musicVolume, volume);
+
+    public void SetAmbienceVolume(float volume) => SetVolume(ambienceSource, ref ambienceVolume, volume);
+
+    private AudioSource CreateSource(bool loop, float volume)
     {
-        if (clip == null || musicSource == null)
-        {
-            return;
-        }
-
-        if (musicSource.clip == clip && musicSource.isPlaying)
-        {
-            return;
-        }
-
-        musicSource.clip = clip;
-        musicSource.Play();
+        AudioSource source = gameObject.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.loop = loop;
+        source.volume = Mathf.Clamp01(volume);
+        return source;
     }
 
-    public void StopMusic()
+    private static void PlayLoop(AudioSource source, AudioClip clip)
     {
-        if (musicSource != null)
+        if (source == null || clip == null || (source.clip == clip && source.isPlaying))
         {
-            musicSource.Stop();
+            return;
+        }
+
+        source.clip = clip;
+        source.Play();
+    }
+
+    private static void SetVolume(AudioSource source, ref float configuredVolume, float volume)
+    {
+        configuredVolume = float.IsNaN(volume) ? 0f : Mathf.Clamp01(volume);
+        if (source != null)
+        {
+            source.volume = configuredVolume;
         }
     }
 

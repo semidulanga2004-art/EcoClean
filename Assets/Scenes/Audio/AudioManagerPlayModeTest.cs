@@ -10,6 +10,8 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
 
     private AudioManager manager;
     private bool sceneTestStarted;
+    private float musicVolume = 0.45f;
+    private float ambienceVolume = 0.22f;
     private string status = "Ready.";
 
     private void Start()
@@ -29,13 +31,13 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
 
     private void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(16, 16, 480, 310), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(16, 16, 480, 440), GUI.skin.box);
         GUILayout.Label("AudioManager Play Mode test");
 
         GUI.enabled = manager != null && backgroundMusic != null;
         if (GUILayout.Button("Start music"))
         {
-            manager.PlayMusic(backgroundMusic);
+            manager.PlayMusic();
             status = "Music requested.";
         }
 
@@ -45,6 +47,21 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
             manager.StopMusic();
             status = "Music stopped.";
         }
+
+        if (GUILayout.Button("Start ambience"))
+        {
+            manager.PlayAmbience();
+            status = "Ambience requested.";
+        }
+
+        if (GUILayout.Button("Stop ambience"))
+        {
+            manager.StopAmbience();
+            status = "Ambience stopped.";
+        }
+
+        DrawVolumeSlider("Music volume", ref musicVolume, manager == null ? null : manager.SetMusicVolume);
+        DrawVolumeSlider("Ambience volume", ref ambienceVolume, manager == null ? null : manager.SetAmbienceVolume);
 
         GUI.enabled = manager != null && uiClick != null;
         if (GUILayout.Button("Play UI click"))
@@ -68,6 +85,17 @@ public sealed class AudioManagerPlayModeTest : MonoBehaviour
 
         GUILayout.Label(status);
         GUILayout.EndArea();
+    }
+
+    private static void DrawVolumeSlider(string label, ref float volume, System.Action<float> apply)
+    {
+        GUILayout.Label(label);
+        float next = GUILayout.HorizontalSlider(volume, 0f, 1f);
+        if (next != volume)
+        {
+            volume = next;
+            apply?.Invoke(volume);
+        }
     }
 
     private IEnumerator CheckDuplicateAfterSceneChange()

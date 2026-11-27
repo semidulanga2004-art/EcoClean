@@ -44,3 +44,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1318d6edeed423491180d1cce52fcef, type: 3}
   m_Name:
   m_EditorClassIdentifier:
+  backgroundMusic: {fileID: 8300000, guid: f40188b86eb540409590e6a99a4aa4f7, type: 3}
+  parkAmbience: {fileID: 8300000, guid: 9ad6c54a4e774d489c40357629cd4c3c, type: 3}
