@@ -1,13 +1,27 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(CharacterController))]
 public sealed class PlayerMovement : MonoBehaviour
 {
     private static readonly int SpeedParameter = Animator.StringToHash("Speed");
+    // Swimming starts this far below the float height (about chest-deep water)...
+    private const float SwimStartMargin = 0.45f;
+    // ...and standing up is offered where the ground is at most this far below it, so standing never
+    // lands deep enough to start swimming again.
+    private const float StandUpMaxDepth = 0.35f;
+
+    private readonly RaycastHit[] groundHits = new RaycastHit[8];
 
     [Header("Input")]
     [SerializeField] private InputActionReference moveAction;
+    [Tooltip("At the shore while swimming: stand up and walk onto the beach.")]
+    [FormerlySerializedAs("swimUpAction")]
+    [SerializeField] private InputActionReference standUpAction;
+    [Tooltip("While swimming: toggle diving down to walk on the sea floor, and back up.")]
+    [FormerlySerializedAs("swimDownAction")]
+    [SerializeField] private InputActionReference diveAction;
 
     [Header("References")]
     [SerializeField] private Transform cameraTransform;
@@ -18,6 +32,22 @@ public sealed class PlayerMovement : MonoBehaviour
     [SerializeField] private float gravity = -9.81f;
     [SerializeField, Min(0f)] private float rotationSpeed = 720f;
 
+    [Header("Swimming")]
+    [SerializeField, Min(0f)] private float swimSpeed = 3f;
+    [Tooltip("How far below the water surface the feet float, so head, chest and arms stay above water.")]
+    [SerializeField, Min(0f)] private float floatDepth = 0.95f;
+    [SerializeField, Min(0f)] private float surfacingSpeed = 1.8f;
+
+    [Header("Diving")]
+    [Tooltip("Walking speed on the sea floor while diving.")]
+    [SerializeField, Min(0f)] private float seabedWalkSpeed = 2.2f;
+    [Tooltip("Slow underwater sinking speed (m/s) on the way down to the sea floor.")]
+    [SerializeField, Min(0f)] private float sinkSpeed = 2.5f;
+
+    [Header("Climbing")]
+    [Tooltip("Speed of scrambling up objects marked Climbable (rocks).")]
+    [SerializeField, Min(0f)] private float climbSpeed = 2.5f;
+
     [Header("Animation")]
     [SerializeField, Min(0f)] private float animatorDamping = 0.1f;
 
@@ -27,6 +57,14 @@ public sealed class PlayerMovement : MonoBehaviour
     private bool warnedAboutMoveAction;
     private bool warnedAboutCamera;
     private bool warnedAboutAnimator;
+
+    private bool touchingClimbable;
+    private Vector3 climbableNormal;
+
+    public bool IsSwimming { get; private set; }
+    public bool IsDiving { get; private set; }
+    // Swimming at the surface with shallow ground ahead: the stand-up button walks onto the beach.
+    public bool CanStandUp { get; private set; }
 
     private void Awake()
     {
@@ -78,11 +116,172 @@ public sealed class PlayerMovement : MonoBehaviour
         }
 
         Vector3 moveDirection = cameraForward * moveInput.y + cameraRight * moveInput.x;
-        Vector3 horizontalVelocity = moveDirection * moveSpeed;
+        UpdateSwimState();
 
+        if (IsSwimming)
+        {
+            if (WasPressed(diveAction))
+            {
+                IsDiving = !IsDiving;
+                verticalVelocity = 0f;
+            }
+
+            RotateToward(moveDirection);
+            UpdateAnimator(moveInput.magnitude);
+
+            if (IsDiving)
+            {
+                CanStandUp = false;
+                WalkOnSeabed(moveDirection * seabedWalkSpeed);
+                return;
+            }
+
+            if (!(CanStandUp && WasPressed(standUpAction)))
+            {
+                SwimAtSurface(moveDirection * swimSpeed);
+                return;
+            }
+
+            // Stand up in the shallows and walk onto the beach.
+            IsSwimming = false;
+            CanStandUp = false;
+            verticalVelocity = 0f;
+        }
+
+        CanStandUp = false;
         RotateToward(moveDirection);
         UpdateAnimator(moveInput.magnitude);
-        MoveWithGravity(horizontalVelocity);
+        if (IsClimbing(moveDirection))
+        {
+            verticalVelocity = climbSpeed;
+        }
+
+        MoveWithGravity(moveDirection * moveSpeed);
+    }
+
+    private void UpdateSwimState()
+    {
+        float feetY = transform.position.y;
+        if (!WaterZone.TryGetSurface(transform.position, out float surfaceY))
+        {
+            IsSwimming = false;
+            IsDiving = false;
+            return;
+        }
+
+        float floatY = surfaceY - floatDepth;
+        if (!IsSwimming && feetY < floatY - SwimStartMargin)
+        {
+            // About chest-deep: start swimming at the surface.
+            IsSwimming = true;
+            IsDiving = false;
+            verticalVelocity = 0f;
+        }
+        else if (IsSwimming && !IsDiving && feetY > floatY + 0.6f)
+        {
+            // Lifted clearly out of the water (pier, boat, teleport): walk or fall again.
+            IsSwimming = false;
+        }
+        else if (IsDiving && feetY > floatY + 0.05f && characterController.isGrounded)
+        {
+            // Walked along the sea floor up into shallow water: the dive is over.
+            IsSwimming = false;
+            IsDiving = false;
+        }
+    }
+
+    // Float with head, chest and arms above water. The beach cannot be swum onto: at the shore the
+    // player stops and may stand up instead.
+    private void SwimAtSurface(Vector3 velocity)
+    {
+        WaterZone.TryGetSurface(transform.position, out float surfaceY);
+        float floatY = surfaceY - floatDepth;
+        float dt = Mathf.Max(Time.deltaTime, 0.0001f);
+        float offset = floatY - transform.position.y;
+        velocity.y = Mathf.Clamp(offset / dt, -surfacingSpeed, surfacingSpeed);
+
+        Vector3 position = transform.position;
+        Vector3 horizontal = new Vector3(velocity.x, 0f, velocity.z);
+        if (horizontal.sqrMagnitude > 0.0001f &&
+            GroundHeight(position + horizontal.normalized * 0.6f) > floatY - 0.05f)
+        {
+            velocity.x = 0f;
+            velocity.z = 0f;
+        }
+
+        CanStandUp = GroundHeight(position) > floatY - StandUpMaxDepth ||
+                     (horizontal.sqrMagnitude > 0.0001f && velocity.x == 0f && velocity.z == 0f);
+
+        characterController.Move(velocity * dt);
+    }
+
+    private void WalkOnSeabed(Vector3 horizontalVelocity)
+    {
+        float dt = Time.deltaTime;
+        if (IsClimbing(horizontalVelocity))
+        {
+            verticalVelocity = climbSpeed * 0.6f;
+        }
+        else if (characterController.isGrounded && verticalVelocity < 0f)
+        {
+            verticalVelocity = -1f;
+        }
+        else
+        {
+            // Sink slowly through the water down to the sea floor.
+            verticalVelocity = Mathf.Max(verticalVelocity + gravity * 0.3f * dt, -sinkSpeed);
+        }
+
+        characterController.Move((horizontalVelocity + Vector3.up * verticalVelocity) * dt);
+    }
+
+    private bool IsClimbing(Vector3 moveDirection)
+    {
+        bool climbing = touchingClimbable && moveDirection.sqrMagnitude > 0.01f &&
+            Vector3.Dot(moveDirection.normalized, -new Vector3(climbableNormal.x, 0f, climbableNormal.z).normalized) > 0.3f;
+        touchingClimbable = false; // refreshed by OnControllerColliderHit during this frame's Move
+        return climbing;
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // Steep faces of Climbable objects (rocks) can be scrambled up instead of blocking the player.
+        if (hit.normal.y < 0.7f && hit.collider.GetComponentInParent<Climbable>() != null)
+        {
+            touchingClimbable = true;
+            climbableNormal = hit.normal;
+        }
+    }
+
+    // Highest solid surface below a point, ignoring the player's own collider.
+    private float GroundHeight(Vector3 point)
+    {
+        int count = Physics.RaycastNonAlloc(point + Vector3.up * 3f, Vector3.down, groundHits, 40f,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+        float best = float.NegativeInfinity;
+        for (int i = 0; i < count; i++)
+        {
+            if (groundHits[i].collider != characterController && groundHits[i].point.y > best)
+            {
+                best = groundHits[i].point.y;
+            }
+        }
+
+        return best;
+    }
+
+    private void OnDisable()
+    {
+        // Disabled while riding the boat (or paused): stand idle instead of freezing mid-walk.
+        if (animator != null)
+        {
+            animator.SetFloat(SpeedParameter, 0f);
+        }
+    }
+
+    private static bool WasPressed(InputActionReference reference)
+    {
+        return reference != null && reference.action != null && reference.action.WasPressedThisFrame();
     }
 
     private Vector2 ReadMoveInput()
