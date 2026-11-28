@@ -16,6 +16,13 @@ public sealed class ThirdPersonCameraFollow : MonoBehaviour
     [SerializeField, Min(0f)] private float mouseSensitivity = 0.12f;
     [SerializeField, Range(-89f, 89f)] private float minimumVerticalAngle = -8f;
     [SerializeField, Range(-89f, 89f)] private float maximumVerticalAngle = 65f;
+    [Tooltip("Look around by moving the mouse (cursor locked; Esc frees it, click to lock again). " +
+             "Off: orbit by right-drag, keeping the cursor free for clicking objects.")]
+    [SerializeField] private bool freeLook;
+
+    [Header("Water")]
+    [Tooltip("Keeps the camera this far from the water surface so the view is never cut by it.")]
+    [SerializeField, Min(0f)] private float waterSurfaceClearance = 0.45f;
 
     [Header("Smoothing")]
     [SerializeField, Min(0f)] private float followSmoothing = 0.15f;
@@ -82,21 +89,63 @@ public sealed class ThirdPersonCameraFollow : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, rotationBlend);
     }
 
+    private void OnEnable()
+    {
+        if (freeLook)
+        {
+            SetCursorLocked(true);
+        }
+    }
+
     private void OnDisable()
     {
         trackedTouchId = -1;
         blockTouchInputUntilRelease = false;
+        if (freeLook)
+        {
+            SetCursorLocked(false);
+        }
     }
 
     private void ReadMouseOrbit()
     {
         Mouse mouse = Mouse.current;
-        if (mouse == null || !mouse.rightButton.isPressed)
+        if (mouse == null)
         {
             return;
         }
 
-        ApplyOrbitDelta(mouse.delta.ReadValue());
+        if (freeLook)
+        {
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
+            {
+                SetCursorLocked(false);
+            }
+            else if (Cursor.lockState != CursorLockMode.Locked && mouse.leftButton.wasPressedThisFrame &&
+                     (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()))
+            {
+                SetCursorLocked(true);
+            }
+
+            if (Cursor.lockState == CursorLockMode.Locked)
+            {
+                ApplyOrbitDelta(mouse.delta.ReadValue());
+            }
+
+            return;
+        }
+
+        if (mouse.rightButton.isPressed)
+        {
+            ApplyOrbitDelta(mouse.delta.ReadValue());
+        }
+    }
+
+    private static void SetCursorLocked(bool locked)
+    {
+        Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !locked;
     }
 
     private bool ReadTouchOrbit()
@@ -232,6 +281,17 @@ public sealed class ThirdPersonCameraFollow : MonoBehaviour
 
         // Keep the camera above the Player root even if target height or orbit distance changes.
         desiredPosition.y = Mathf.Max(desiredPosition.y, groundHeight + 0.25f);
+
+        // In water, stay on the same side of the surface as the player's head: above it while
+        // swimming at the surface, below it while diving.
+        if (WaterZone.TryGetSurface(target.position, out float surfaceY))
+        {
+            // The target sits near the shoulders, just under the surface while floating.
+            desiredPosition.y = target.position.y > surfaceY - 0.4f
+                ? Mathf.Max(desiredPosition.y, surfaceY + waterSurfaceClearance)
+                : Mathf.Min(desiredPosition.y, surfaceY - waterSurfaceClearance);
+        }
+
         return desiredPosition;
     }
 
